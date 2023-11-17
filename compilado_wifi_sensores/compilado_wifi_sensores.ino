@@ -6,8 +6,8 @@
 
 // sensor de temperatura e umidade (dht)
 #define PIN_TEMP_UMID_ANAG_IN A0
-#define PIN_TEMP_DIG_OUT 5
-#define PIN_UMID_DIG_OUT 6
+#define PIN_TEMP_DIG_OUT 6
+#define PIN_UMID_DIG_OUT 7
 
 DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
 int umid_ok = 1;
@@ -18,7 +18,7 @@ int temp_ok = 1;
 int tem_gas = 0;
 
 // sensor de chama
-#define PIN_CHAMA_DIG_IN 4
+#define PIN_CHAMA_DIG_IN 5
 int tem_chama = 0;
 
 
@@ -26,7 +26,7 @@ int tem_chama = 0;
 SALAMAKER
 Acessando uma página web na rede WiFi com D1 - Wemos - ESP8266 */
 
-#include <ESP8266WiFi.h>
+//#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
 /* Configuração de rede e senha */
@@ -87,15 +87,15 @@ void setup()
   {
     Serial.print("Estabelecendo conexão com ");
     Serial.println(WiFi.SSID()); //Imprime o nome da rede
-    delay(500);
+     delay(500);
   }
   Serial.print("Conectado a rede! Endereco IP ESP -> ");
   Serial.println(WiFi.localIP()); //Imprime o IP local do ESP
 
-  
+
   /* Cria a associacao entre endereço HTML as funções que serão utilizadas */
   server.on("/", paginaInicial);
- 
+
   server.begin(); //Inicia o servidor
 }
 
