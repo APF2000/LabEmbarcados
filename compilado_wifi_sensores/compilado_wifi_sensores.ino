@@ -1,23 +1,26 @@
 #include "DHT.h"
 
 // definição dos limites dos parâmetros
-#define MIN_UMIDADE 60
+#define MIN_UMID 60
+#define MAX_TEMP 40
 
-// pinagem dos sensores
-#define PIN_SENSOR_CHAMA 2
-#define PIN_SENSOR_GAS 4
-#define PIN_SENSOR_UMIDADE 7
+// sensor de temperatura e umidade (dht)
+#define PIN_TEMP_UMID_ANAG_IN A0
+#define PIN_TEMP_DIG_OUT 5
+#define PIN_UMID_DIG_OUT 6
 
-//SENSOR DE TEMPERATURA E UMIDADE
-DHT dht(A0, DHT22);
+DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
+int umid_ok = 1;
+int temp_ok = 1;
 
-//SENSOR DE GAS
-#define PIN_GAS_DIG_IN 40
+// semsor de gas
+#define PIN_GAS_DIG_IN 3
 int tem_gas = 0;
 
-//SENSOR DE CHAMA
-#define PIN_CHAMA_DIG_IN 26
-int tem_fogo = 0;
+// sensor de chama
+#define PIN_CHAMA_DIG_IN 4
+int tem_chama = 0;
+
 
 /*
 SALAMAKER
@@ -27,30 +30,25 @@ Acessando uma página web na rede WiFi com D1 - Wemos - ESP8266 */
 #include <ESP8266WebServer.h>
 
 /* Configuração de rede e senha */
-const char *rede = "FONSECA";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
-const char *senha = "VIPDOCTOR33";  // coloque aqui a senha da rede WI-FI que deseja se conectar
-// const char *rede = "ArthurWiFi";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
-// const char *senha = "12345678";  // coloque aqui a senha da rede WI-FI que deseja se conectar
+// const char *rede = "FONSECA";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
+// const char *senha = "VIPDOCTOR33";  // coloque aqui a senha da rede WI-FI que deseja se conectar
+const char *rede = "ArthurWiFi";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
+const char *senha = "12345678";  // coloque aqui a senha da rede WI-FI que deseja se conectar
 
 
 ESP8266WebServer server(80); //Objeto "servidor" na porta 80(porta HTTP)
 
-
-//**************************************************************************************************************************************************************
-// conferir motivo de tem_fogo receber !digitalRead
-//**************************************************************************************************************************************************************
-
 int sensorChama() {
-  tem_fogo = digitalRead(PIN_CHAMA_DIG_IN);
+  tem_chama = digitalRead(PIN_CHAMA_DIG_IN);
 
-  return tem_fogo;
+  return tem_chama;
 }
 
 // Faz a leitura do sensor de gas, compara esse valor com o parâmetro mínimo definido "MIN_GAS" e altera o led de acordo para indicar se têm gás ou não
 int sensorGas() {
-  tem_fogo = digitalRead(PIN_GAS_DIG_IN);
+  tem_gas = digitalRead(PIN_GAS_DIG_IN);
   
-  return tem_fogo;
+  return tem_gas;
 }
 
 void paginaInicial()
@@ -97,8 +95,6 @@ void setup()
   server.on("/", paginaInicial);
  
   server.begin(); //Inicia o servidor
-
-  
 }
 
 void loop() 
@@ -106,31 +102,41 @@ void loop()
   sensorChama(); 
   sensorGas();
 
-  float valor_temperatura; //Temperatura
-  float valor_umidade; // Umidade
-  valor_umidade = dht.readHumidity();
-  valor_temperatura = dht.readTemperature();
+  int tem_fogo = tem_gas || tem_chama;
 
-  int n_tem_umidade = (valor_umidade <= MIN_UMIDADE);
-
-  int tem_fogo = tem_gas || tem_fogo;
+  Serial.print("\n------------------------\n");
 
   Serial.print("\nTem fogo ? : ");
-  Serial.print(tem_fogo);
+  Serial.print(tem_chama);
   Serial.print("\nTem gas ? : ");
   Serial.print(tem_gas);
   Serial.print("\nTem chama ? : ");
   Serial.print(tem_fogo);
 
-  digitalWrite(PIN_SENSOR_CHAMA, tem_fogo);
-  digitalWrite(PIN_SENSOR_GAS, tem_gas);
-  digitalWrite(PIN_SENSOR_UMIDADE, n_tem_umidade);
+  digitalWrite(PIN_CHAMA_DIG_IN, tem_chama);
+  digitalWrite(PIN_GAS_DIG_IN, tem_gas);
 
+  Serial.print("\n------------------------\n");
+
+  float valor_temperatura; //Temperatura
+  float valor_umidade; // Umidade
+  valor_umidade = dht.readHumidity();
+  valor_temperatura = dht.readTemperature();
+
+  umid_ok = (valor_umidade >= MIN_UMID);
+  temp_ok = (valor_temperatura <= MAX_TEMP);
+
+  digitalWrite(PIN_TEMP_DIG_OUT, !umid_ok);
+  digitalWrite(PIN_UMID_DIG_OUT, !temp_ok);
 
   Serial.println("umi: ");
   Serial.println(valor_umidade);
   Serial.println("temp: ");
   Serial.println(valor_temperatura);
+  Serial.print("umid_ok ? : ");
+  Serial.println(umid_ok);
+  Serial.print("temp_ok ? : ");
+  Serial.println(temp_ok);
 
   /////////////////////////////////////////////////////////////
 
@@ -143,5 +149,5 @@ void loop()
   //Analise das solicitacoes via web
   server.handleClient();
 
-  delay(5000);
+  delay(2000);
 }
