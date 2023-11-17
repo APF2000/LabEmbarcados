@@ -1,8 +1,6 @@
 #include "DHT.h"
 
 // definição dos limites dos parâmetros
-#define MIN_GAS 300
-#define MIN_CHAMA 950
 #define MIN_UMIDADE 60
 
 // pinagem dos sensores
@@ -11,22 +9,17 @@
 #define PIN_SENSOR_UMIDADE 7
 
 //SENSOR DE TEMPERATURA E UMIDADE
-DHT dht(A1, DHT22);
+DHT dht(A0, DHT22);
 
 //SENSOR DE GAS
-const int pin_gas_dig_in = 40; //, pin_gas_dig_out = 49;
-// const int pin_gas_anag = A2;
+#define PIN_GAS_DIG_IN 40
 int tem_gas = 0;
-// int val_gas_anag = 0;
 
 //SENSOR DE CHAMA
-const int pin_chama_dig_in = 26; //, pin_chama_dig_out = 31;
-// const int pin_chama_anag = A3;
+#define PIN_CHAMA_DIG_IN 26
 int tem_fogo = 0;
-// int val_chama_anag = 0;
 
 /*
-
 SALAMAKER
 Acessando uma página web na rede WiFi com D1 - Wemos - ESP8266 */
 
@@ -40,7 +33,6 @@ const char *senha = "VIPDOCTOR33";  // coloque aqui a senha da rede WI-FI que de
 // const char *senha = "12345678";  // coloque aqui a senha da rede WI-FI que deseja se conectar
 
 
-
 ESP8266WebServer server(80); //Objeto "servidor" na porta 80(porta HTTP)
 
 
@@ -49,70 +41,46 @@ ESP8266WebServer server(80); //Objeto "servidor" na porta 80(porta HTTP)
 //**************************************************************************************************************************************************************
 
 int sensorChama() {
-  tem_fogo = digitalRead(pin_chama_dig_in);
-  
-  val_chama_anag = analogRead(pin_chama_anag);
+  tem_fogo = digitalRead(PIN_CHAMA_DIG_IN);
 
-  if (tem_fogo) digitalWrite(pin_chama_dig_out, HIGH);
-  else digitalWrite(pin_chama_dig_out, LOW);
-
-  return tem_fogo; //val_chama_anag;
+  return tem_fogo;
 }
 
 // Faz a leitura do sensor de gas, compara esse valor com o parâmetro mínimo definido "MIN_GAS" e altera o led de acordo para indicar se têm gás ou não
 int sensorGas() {
-  val_gas_anag = analogRead(pin_gas_anag);
-
-  // LEDs para debug
-  tem_gas = (val_gas_anag > MIN_GAS);
-  if (tem_gas) 
-    digitalWrite(pin_gas_dig_out, HIGH);
-  else 
-    digitalWrite(pin_gas_dig_out, LOW);
+  tem_fogo = digitalRead(PIN_GAS_DIG_IN);
   
-  return tem_gas; // val_gas_anag;
+  return tem_fogo;
 }
 
+void paginaInicial()
+{
+
+  String dados = "<p>HELLO WORLD</p><h1>TESTE H1</h1>";
+
+  server.send(200, "text/html", dados); //Retorna resposta HTTP
+  // server.send(200, "text/plain", dados); //Retorna resposta HTTP
+}
 
 void setup()
 {
-
-  for(int i = 0; i < tam_media; i++) gas_vals[i] = 0;
-  for(int i = 0; i < tam_media; i++) chama_vals[i] = 0;
+  // sensor de cham,a
+  pinMode(PIN_CHAMA_DIG_IN, INPUT);
   
-  //Serial.begin(9600);
-  
-  //Sensor de Chama
-  pinMode(pin_chama_dig_in, INPUT);
-  pinMode(pin_chama_anag, INPUT);
-  pinMode(pin_chama_dig_out, OUTPUT);
+  // sensor de gás
+  pinMode(PIN_GAS_DIG_IN, INPUT);
 
-  
-  //Sensor de Gás  
-  pinMode(pin_gas_dig_in, INPUT);
-  pinMode(pin_gas_anag, INPUT);
-  pinMode(pin_gas_dig_out, OUTPUT);
-
-  pinMode(PIN_SENSOR_CHAMA, OUTPUT);  // chama
-  pinMode(PIN_SENSOR_GAS, OUTPUT);  // gas
-  pinMode(PIN_SENSOR_UMIDADE, OUTPUT);  // umidade
+  // sensor temperatura e umidade
+  dht.begin();
 
 /////////////////////////////////////////////////////////////////////////////
   // Conexao WiFi
-  dht.begin();
-  Serial.begin(9600);
-
-  // Serial.begin(115200); // Inicia a serial com velocidade de 115200
-
   Serial.begin(115200); // printa na tela
-  // Serial.begin(9600); // recebe da outra placa
-
 
   Serial.println();
   Serial.print("Conectando a ");
   Serial.println(rede);
 
- 
   WiFi.begin(rede, senha);// Inicia a WiFi com com o nome da rede e senha
 
   while (WiFi.status() != WL_CONNECTED) //Aguarda a conexao
@@ -135,49 +103,26 @@ void setup()
 
 void loop() 
 { 
-  //sensorChama(); 
-  //sensorGas();
-
-  //Serial.print("\n---------------------\n");
-
-  int valor_gas = sensorGas();
-  int m1 = media(gas_vals, tam_media);
-
-  //Serial.print("\nTem gas ?(loop): ");
-  //Serial.print(tem_gas);
-
-  Serial.print("\nNivel de gas: ");
-  Serial.println(m1);
-
-  Serial.print("\n---------------------\n");
-
-  
-  int valor_chama = sensorChama();
-  int m2 = media(chama_vals, 20);
-  
-  Serial.print("\nNivel de chama: ");
-  Serial.println(m2);
-
+  sensorChama(); 
+  sensorGas();
 
   float valor_temperatura; //Temperatura
   float valor_umidade; // Umidade
   valor_umidade = dht.readHumidity();
   valor_temperatura = dht.readTemperature();
 
-  int tem_gas = (m1 > MIN_GAS);
-  int tem_chama = (m2 <= MIN_CHAMA);
   int n_tem_umidade = (valor_umidade <= MIN_UMIDADE);
 
-  int tem_fogo = tem_gas || tem_chama;
+  int tem_fogo = tem_gas || tem_fogo;
 
   Serial.print("\nTem fogo ? : ");
   Serial.print(tem_fogo);
   Serial.print("\nTem gas ? : ");
   Serial.print(tem_gas);
   Serial.print("\nTem chama ? : ");
-  Serial.print(tem_chama);
+  Serial.print(tem_fogo);
 
-  digitalWrite(PIN_SENSOR_CHAMA, tem_chama);
+  digitalWrite(PIN_SENSOR_CHAMA, tem_fogo);
   digitalWrite(PIN_SENSOR_GAS, tem_gas);
   digitalWrite(PIN_SENSOR_UMIDADE, n_tem_umidade);
 
