@@ -70,6 +70,8 @@ void setup()
 
   // sensor temperatura e umidade
   dht.begin();
+  pinMode(PIN_TEMP_DIG_OUT, OUTPUT);
+  pinMode(PIN_UMID_DIG_OUT, OUTPUT);
 
 /////////////////////////////////////////////////////////////////////////////
   // Conexao WiFi
