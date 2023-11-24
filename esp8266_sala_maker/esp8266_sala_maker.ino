@@ -7,10 +7,12 @@ Acessando uma página web na rede WiFi com D1 - Wemos - ESP8266 */
 #include <ESP8266WebServer.h>
 
 /* Configuração de rede e senha */
-const char *rede = "FONSECA";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
-const char *senha = "VIPDOCTOR33";  // coloque aqui a senha da rede WI-FI que deseja se conectar
-// const char *rede = "ArthurWiFi";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
-// const char *senha = "12345678";  // coloque aqui a senha da rede WI-FI que deseja se conectar
+// const char *rede = "FONSECA";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
+// const char *senha = "VIPDOCTOR33";  // coloque aqui a senha da rede WI-FI que deseja se conectar
+const char *rede = "ArthurWiFi";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
+const char *senha = "12345678";  // coloque aqui a senha da rede WI-FI que deseja se conectar
+// const char *rede = "AndroidAP";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
+// const char *senha = "tpwn1590";  // coloque aqui a senha da rede WI-FI que deseja se conectar
 
 
 
