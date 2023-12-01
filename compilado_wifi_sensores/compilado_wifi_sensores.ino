@@ -6,19 +6,19 @@
 
 // sensor de temperatura e umidade (dht)
 #define PIN_TEMP_UMID_ANAG_IN A0
-#define PIN_TEMP_DIG_OUT 6
-#define PIN_UMID_DIG_OUT 7
+#define PIN_TEMP_DIG_OUT D6
+#define PIN_UMID_DIG_OUT D7
 
 DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
 int umid_ok = 1;
 int temp_ok = 1;
 
 // semsor de gas
-#define PIN_GAS_DIG_IN 3
+#define PIN_GAS_DIG_IN D3
 int tem_gas = 0;
 
 // sensor de chama
-#define PIN_CHAMA_DIG_IN 5
+#define PIN_CHAMA_DIG_IN D5
 int tem_chama = 0;
 
 
