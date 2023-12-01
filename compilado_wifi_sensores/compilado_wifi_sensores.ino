@@ -26,15 +26,17 @@ int tem_chama = 0;
 SALAMAKER
 Acessando uma página web na rede WiFi com D1 - Wemos - ESP8266 */
 
-//#include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include <ESP8266WebServer.h>
+#include <WiFiClient.h>
+
 
 /* Configuração de rede e senha */
 // const char *rede = "FONSECA";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
 // const char *senha = "VIPDOCTOR33";  // coloque aqui a senha da rede WI-FI que deseja se conectar
 const char *rede = "ArthurWiFi";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
 const char *senha = "12345678";  // coloque aqui a senha da rede WI-FI que deseja se conectar
-
 
 ESP8266WebServer server(80); //Objeto "servidor" na porta 80(porta HTTP)
 
@@ -151,5 +153,39 @@ void loop()
   //Analise das solicitacoes via web
   server.handleClient();
 
-  delay(2000);
+  if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
+ 
+    HTTPClient http;    //Declare object of class HTTPClient
+    WiFiClient wifiClient;
+ 
+    // http.begin(wifiClient, "https://api.tago.io/data");
+    // // http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
+    // http.addHeader("Content-Type", "text/plain");  //Specify content-type header
+
+    // int httpCode = http.POST("{ \"variable\": \"temperatura\", \"unit\"    : \"F\", \"value\"   : 1234, \"time\"    : \"2015-11-03 13:44:33\",\"location\": {\"lat\": 42.2974279, \"lng\": -85.628292}}");   //Send the request
+    
+ 
+    http.begin(wifiClient, "https://pntdpvkdsc.execute-api.us-east-1.amazonaws.com/default/app_data");
+    // http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
+    http.addHeader("Content-Type", "application/json");  //Specify content-type header
+
+    int httpCode = http.POST("{ \"method\": \"add_obd_info\", \"timestamp\"    : \"2015-11-03 13:44:33\", \"name\"   : \"animal\", \"result\"    : \"barulho que ele faz\"}");   //Send the request
+    
+    String payload = http.getString();                  //Get the response payload
+ 
+    Serial.println(httpCode);   //Print HTTP return code
+    Serial.println(payload);    //Print request response payload
+ 
+    	
+    http.writeToStream(&Serial);
+
+    http.end();  //Close connection
+ 
+  } else {
+ 
+    Serial.println("Error in WiFi connection");
+ 
+  }
+
+  delay(100000);
 }
