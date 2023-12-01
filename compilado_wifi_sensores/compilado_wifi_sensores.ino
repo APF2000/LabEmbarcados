@@ -31,6 +31,8 @@ Acessando uma página web na rede WiFi com D1 - Wemos - ESP8266 */
 #include <ESP8266WebServer.h>
 #include <WiFiClient.h>
 
+#include <WiFiClientSecureBearSSL.h>
+
 
 /* Configuração de rede e senha */
 // const char *rede = "FONSECA";  // coloque aqui o SSID / nome da rede WI-FI que deseja se conectar
@@ -209,7 +211,7 @@ void loop()
     // Serial.println(payload);    //Print request response payload
  
     	
-    https.writeToStream(&Serial);
+    // https.writeToStream(&Serial);
 
     https.end();  //Close connection
  
