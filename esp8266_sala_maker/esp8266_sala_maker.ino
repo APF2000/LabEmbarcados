@@ -62,6 +62,8 @@ void loop() {
 
   //Analise das solicitacoes via web
   server.handleClient();
+
+  delay(5000);
 }
 
 void paginaInicial()
