@@ -5,7 +5,7 @@
 #define MAX_TEMP 40
 
 // sensor de temperatura e umidade (dht)
-#define PIN_TEMP_UMID_ANAG_IN A0
+#define PIN_TEMP_UMID_ANAG_IN D2
 #define PIN_TEMP_DIG_OUT D6
 #define PIN_UMID_DIG_OUT D7
 
