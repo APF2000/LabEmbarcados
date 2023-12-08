@@ -1,7 +1,7 @@
 #include "DHT.h"
 
 // definição dos limites dos parâmetros
-#define MIN_UMID 0
+#define MIN_UMID 60
 #define MAX_TEMP 40
 
 // sensor de temperatura e umidade (dht)
@@ -79,22 +79,22 @@ void setup()
 
 /////////////////////////////////////////////////////////////////////////////
   // Conexao WiFi
-  // Serial.begin(115200); // printa na tela
+  Serial.begin(115200); // printa na tela
 
-  // Serial.println();
-  // Serial.print("Conectando a ");
-  // Serial.println(rede);
+  Serial.println();
+  Serial.print("Conectando a ");
+  Serial.println(rede);
 
   WiFi.begin(rede, senha);// Inicia a WiFi com com o nome da rede e senha
 
   while (WiFi.status() != WL_CONNECTED) //Aguarda a conexao
   {
-    // Serial.print("Estabelecendo conexão com ");
-    // Serial.println(WiFi.SSID()); //Imprime o nome da rede
+    Serial.print("Estabelecendo conexão com ");
+    Serial.println(WiFi.SSID()); //Imprime o nome da rede
      delay(500);
   }
-  // Serial.print("Conectado a rede! Endereco IP ESP -> ");
-  // Serial.println(WiFi.localIP()); //Imprime o IP local do ESP
+  Serial.print("Conectado a rede! Endereco IP ESP -> ");
+  Serial.println(WiFi.localIP()); //Imprime o IP local do ESP
 
 
   /* Cria a associacao entre endereço HTML as funções que serão utilizadas */
@@ -110,19 +110,19 @@ void loop()
 
   int tem_fogo = tem_gas || tem_chama;
 
-  // Serial.print("\n------------------------\n");
+  Serial.print("\n------------------------\n");
 
-  // Serial.print("\nTem fogo ? : ");
-  // Serial.print(tem_chama);
-  // Serial.print("\nTem gas ? : ");
-  // Serial.print(tem_gas);
-  // Serial.print("\nTem chama ? : ");
-  // Serial.print(tem_fogo);
+  Serial.print("\nTem fogo ? : ");
+  Serial.print(tem_chama);
+  Serial.print("\nTem gas ? : ");
+  Serial.print(tem_gas);
+  Serial.print("\nTem chama ? : ");
+  Serial.print(tem_fogo);
 
   digitalWrite(PIN_CHAMA_DIG_IN, tem_chama);
   digitalWrite(PIN_GAS_DIG_IN, tem_gas);
 
-  // Serial.print("\n------------------------\n");
+  Serial.print("\n------------------------\n");
 
   float valor_temperatura; //Temperatura
   float valor_umidade; // Umidade
@@ -135,22 +135,22 @@ void loop()
   digitalWrite(PIN_TEMP_DIG_OUT, !umid_ok);
   digitalWrite(PIN_UMID_DIG_OUT, !temp_ok);
 
-  // Serial.println("umi: ");
-  // Serial.println(valor_umidade);
-  // Serial.println("temp: ");
-  // Serial.println(valor_temperatura);
-  // Serial.print("umid_ok ? : ");
-  // Serial.println(umid_ok);
-  // Serial.print("temp_ok ? : ");
-  // Serial.println(temp_ok);
+  Serial.println("umi: ");
+  Serial.println(valor_umidade);
+  Serial.println("temp: ");
+  Serial.println(valor_temperatura);
+  Serial.print("umid_ok ? : ");
+  Serial.println(umid_ok);
+  Serial.print("temp_ok ? : ");
+  Serial.println(temp_ok);
 
   /////////////////////////////////////////////////////////////
 
-  // Serial.println("HELLO WORLD FROM WEMOS D1");
+  Serial.println("HELLO WORLD FROM WEMOS D1");
  
   char rx_ch = Serial.read();
-  // Serial.print("RX: ");
-  // Serial.println(rx_ch);
+  Serial.print("RX: ");
+  Serial.println(rx_ch);
 
   //Analise das solicitacoes via web
   server.handleClient();
@@ -175,13 +175,13 @@ void loop()
         httpRequestData.concat(valor_umidade);
         httpRequestData.concat("\", \"unit\": \"%\"}]");
 
-        // Serial.print("httpRequestData ");
-        // Serial.println(httpRequestData);
+        Serial.print("httpRequestData ");
+        Serial.println(httpRequestData);
 
         https.addHeader("Content-Type", "application/json");
         // https.addHeader("data-raw", httpRequestData);
         https.addHeader("Authorization", "4bb77716-ed20-48e8-9824-f4fdf667cba4");  
-        // Serial.print("[HTTPS] POST...\n");
+        Serial.print("[HTTPS] POST...\n");
         // start connection and send HTTP header
 
         // Ignore SSL certificate validation
@@ -190,24 +190,24 @@ void loop()
 
         int httpCode = https.POST(httpRequestData);
         
-        // Serial.print("httpCode");
-        // Serial.println(httpCode);
+        Serial.print("httpCode");
+        Serial.println(httpCode);
       
       if (httpCode > 0) {
         // HTTP header has been send and Server response header has been handled
-        // Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
+        Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
         // file found at server
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
           String payload = https.getString();
-          // Serial.println(payload);
+          Serial.println(payload);
         }
       } else {
-        // Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
+        Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
       }
 
       https.end();
     } else {
-      // Serial.printf("[HTTPS] Unable to connect\n");
+      Serial.printf("[HTTPS] Unable to connect\n");
     }
  
 
@@ -215,7 +215,7 @@ void loop()
  
   } else {
  
-    // Serial.println("Error in WiFi connection");
+    Serial.println("Error in WiFi connection");
  
   }
 
