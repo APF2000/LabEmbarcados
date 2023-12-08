@@ -154,145 +154,78 @@ void loop()
 
   //Analise das solicitacoes via web
   server.handleClient();
-  int httpCode;
 
-  char *url = "https://www.howsmyssl.com/a/check";
+  if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
+ 
+    HTTPClient https;    //Declare object of class HTTPClient
+    // WiFiClient wifiClient;
 
-  if(WiFi.status()== WL_CONNECTED){
-      // WiFiClient client;
-      HTTPClient https;
-      String httpRequestData = "teste=123";  
-        std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);         
+    std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
 
-      if (https.begin(*client, url)) {  // HTTPS
+    // Ignore SSL certificate validation
+    client->setInsecure();
+
+    // http.begin(wifiClient, "https://api.tago.io/data");
+    // // http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
+    // http.addHeader("Content-Type", "text/plain");  //Specify content-type header
+
+    // int httpCode = http.POST("{ \"variable\": \"temperatura\", \"unit\"    : \"F\", \"value\"   : 1234, \"time\"    : \"2015-11-03 13:44:33\",\"location\": {\"lat\": 42.2974279, \"lng\": -85.628292}}");   //Send the request
+    char *url = //"https://admin.tago.io/devices/654e746f204ae4001082529e";
+    "https://api.tago.io/data";
+
+    if (https.begin(*client, url)) {  // HTTPS
+        // Data to send with HTTP POST
+        // String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";     
+        String httpRequestData = //"[{\"variable\": \"temperatura\",\"value\": 123}]";  
+        "[{ \"variable\": \"temperatura\", \"value\": \"42.42\"}]";
+        // [ { "variable": "temperatura", "value": "22.2","unit": "C" } ]
+        // curl --location --request POST 'https://api.tago.io/data' --header 'Content-Type: application/json' --header 'Authorization: 4bb77716-ed20-48e8-9824-f4fdf667cba4' --data-raw '[ { "variable": "temperatura", "value": "21.2","unit": "C" } ]' 
+
+    
+        // "{ \"variable\": \"temperatura\", \"unit\"    : \"F\", \"value\"   : 1234, \"time\"    : \"2015-11-03 13:44:33\",\"location\": {\"lat\": 42.2974279, \"lng\": -85.628292}}";
+    
+        https.addHeader("Content-Type", "application/json");
+        // https.addHeader("data-raw", httpRequestData);
+        https.addHeader("Authorization", "4bb77716-ed20-48e8-9824-f4fdf667cba4");  
         Serial.print("[HTTPS] POST...\n");
         // start connection and send HTTP header
-
 
         // Ignore SSL certificate validation
         client->setInsecure();
 
-        https.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        // Data to send with HTTP POST
-        // String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
-        // // Send HTTP POST request
-        // int httpResponseCode = http.POST(httpRequestData);
-        // httpCode will be negative on error
-        httpCode = https.POST(httpRequestData);
+
+        int httpCode = https.POST(httpRequestData);
+        
         Serial.print("httpCode");
         Serial.println(httpCode);
+      
+      // Your
 
-        if (httpCode > 0) {
-          // HTTP header has been send and Server response header has been handled
-          Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-          // file found at server
-          if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-            String payload = https.getString();
-            Serial.println(payload);
-          }
+      if (httpCode > 0) {
+        // HTTP header has been send and Server response header has been handled
+        Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
+        // file found at server
+        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+          String payload = https.getString();
+          Serial.println(payload);
         }
       } else {
         Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
       }
-      
-      // Your Domain name with URL path or IP address with path
-      // https.begin(client, url);
-  
-      // If you need Node-RED/server authentication, insert user and password below
-      //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
-  
-      // Specify content-type header
-      // http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-      // // Data to send with HTTP POST
-      // String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
-      // // Send HTTP POST request
-      // int httpResponseCode = http.POST(httpRequestData);
-      
-      // If you need an HTTP request with a content type: application/json, use the following:
-      //http.addHeader("Content-Type", "application/json");
-      //int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"sensor\":\"BME280\",\"value1\":\"24.25\",\"value2\":\"49.54\",\"value3\":\"1005.14\"}");
 
-      // If you need an HTTP request with a content type: text/plain
-      //http.addHeader("Content-Type", "text/plain");
-      //int httpResponseCode = http.POST("Hello, World!");
-     
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpCode);
-        
-      // Free resources
       https.end();
+    } else {
+      Serial.printf("[HTTPS] Unable to connect\n");
     }
-    else {
-      Serial.println("WiFi Disconnected");
-    }
-    // lastTime = millis();
+ 
+
+    https.end();  //Close connection
+ 
+  } else {
+ 
+    Serial.println("Error in WiFi connection");
+ 
   }
 
-  // if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
- 
-  //   HTTPClient https;    //Declare object of class HTTPClient
-  //   // WiFiClient wifiClient;
-
-  //   std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
-
-  //   // Ignore SSL certificate validation
-  //   client->setInsecure();
-
-  //   if (https.begin(*client, "https://www.howsmyssl.com/a/check")) {  // HTTPS
-  //     Serial.print("[HTTPS] GET...\n");
-  //     // start connection and send HTTP header
-  //     int httpCode = https.GET();
-  //     // httpCode will be negative on error
-  //     if (httpCode > 0) {
-  //       // HTTP header has been send and Server response header has been handled
-  //       Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-  //       // file found at server
-  //       if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-  //         String payload = https.getString();
-  //         Serial.println(payload);
-  //       }
-  //     } else {
-  //       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-  //     }
-
-  //     https.end();
-  //   } else {
-  //     Serial.printf("[HTTPS] Unable to connect\n");
-  //   }
- 
-  //   // // http.begin(wifiClient, "https://api.tago.io/data");
-  //   // // // http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
-  //   // // http.addHeader("Content-Type", "text/plain");  //Specify content-type header
-
-  //   // // int httpCode = http.POST("{ \"variable\": \"temperatura\", \"unit\"    : \"F\", \"value\"   : 1234, \"time\"    : \"2015-11-03 13:44:33\",\"location\": {\"lat\": 42.2974279, \"lng\": -85.628292}}");   //Send the request
-    
-  //   // // https://github.com/douglaszuqueto/esp8266-http-request/blob/master/esp8266/post.ino
-  //   // https.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-  //   // String body = "method=add_obd_info&timestamp=2015-11-03 13:44:33&name=animal&result=barulho";
-
-  //   // https.begin(wifiClient, "https://pntdpvkdsc.execute-api.us-east-1.amazonaws.com/default/app_data");
-  //   // // http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
-  //   // // http.addHeader("Content-Type", "application/json");  //Specify content-type header
-
-  //   // // int httpCode = http.POST("{ \"method\": \"add_obd_info\", \"timestamp\"    : \"2015-11-03 13:44:33\", \"name\"   : \"animal\", \"result\"    : \"barulho que ele faz\"}");   //Send the request
-    
-  //   // int httpCode = https.POST(body);
-  //   // String payload = https.getString();                  //Get the response payload
- 
-  //   // Serial.println(httpCode);   //Print HTTP return code
-  //   // Serial.println(payload);    //Print request response payload
- 
-    	
-  //   // https.writeToStream(&Serial);
-
-  //   https.end();  //Close connection
- 
-  // } else {
- 
-  //   Serial.println("Error in WiFi connection");
- 
-  // }
-
-  delay(100000);
+  delay(10000);
 }
