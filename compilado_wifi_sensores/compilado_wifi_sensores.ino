@@ -1,14 +1,7 @@
-#include "DHTesp.h" // Click here to get the library: http://librarymanager/All#DHTesp
-
-#ifdef ESP32
-#pragma message(THIS EXAMPLE IS FOR ESP8266 ONLY!)
-#error Select ESP8266 board.
-#endif
-
-DHTesp dht;
+#include "DHT.h"
 
 // definição dos limites dos parâmetros
-#define MIN_UMID 60
+#define MIN_UMID 0
 #define MAX_TEMP 40
 
 // sensor de temperatura e umidade (dht)
@@ -16,7 +9,7 @@ DHTesp dht;
 #define PIN_TEMP_DIG_OUT D6
 #define PIN_UMID_DIG_OUT D7
 
-// DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
+DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
 int umid_ok = 1;
 int temp_ok = 1;
 
@@ -80,36 +73,28 @@ void setup()
   pinMode(PIN_GAS_DIG_IN, INPUT);
 
   // sensor temperatura e umidade
-  // dht.begin();
+  dht.begin();
   pinMode(PIN_TEMP_DIG_OUT, OUTPUT);
   pinMode(PIN_UMID_DIG_OUT, OUTPUT);
 
-  String thisBoard= ARDUINO_BOARD;
-  Serial.println(thisBoard);
-
-  // Autodetect is not working reliable, don't use the following line
-  // dht.setup(17);
-  // use this instead: 
-  dht.setup(A0, DHTesp::DHT22); // Connect DHT sensor to GPIO 17
-
 /////////////////////////////////////////////////////////////////////////////
   // Conexao WiFi
-  Serial.begin(115200); // printa na tela
+  // Serial.begin(115200); // printa na tela
 
-  Serial.println();
-  Serial.print("Conectando a ");
-  Serial.println(rede);
+  // Serial.println();
+  // Serial.print("Conectando a ");
+  // Serial.println(rede);
 
   WiFi.begin(rede, senha);// Inicia a WiFi com com o nome da rede e senha
 
   while (WiFi.status() != WL_CONNECTED) //Aguarda a conexao
   {
-    Serial.print("Estabelecendo conexão com ");
-    Serial.println(WiFi.SSID()); //Imprime o nome da rede
+    // Serial.print("Estabelecendo conexão com ");
+    // Serial.println(WiFi.SSID()); //Imprime o nome da rede
      delay(500);
   }
-  Serial.print("Conectado a rede! Endereco IP ESP -> ");
-  Serial.println(WiFi.localIP()); //Imprime o IP local do ESP
+  // Serial.print("Conectado a rede! Endereco IP ESP -> ");
+  // Serial.println(WiFi.localIP()); //Imprime o IP local do ESP
 
 
   /* Cria a associacao entre endereço HTML as funções que serão utilizadas */
@@ -125,42 +110,24 @@ void loop()
 
   int tem_fogo = tem_gas || tem_chama;
 
-  Serial.print("\n------------------------\n");
+  // Serial.print("\n------------------------\n");
 
-  Serial.print("\nTem fogo ? : ");
-  Serial.print(tem_chama);
-  Serial.print("\nTem gas ? : ");
-  Serial.print(tem_gas);
-  Serial.print("\nTem chama ? : ");
-  Serial.print(tem_fogo);
+  // Serial.print("\nTem fogo ? : ");
+  // Serial.print(tem_chama);
+  // Serial.print("\nTem gas ? : ");
+  // Serial.print(tem_gas);
+  // Serial.print("\nTem chama ? : ");
+  // Serial.print(tem_fogo);
 
   digitalWrite(PIN_CHAMA_DIG_IN, tem_chama);
   digitalWrite(PIN_GAS_DIG_IN, tem_gas);
 
-  Serial.print("\n------------------------\n");
+  // Serial.print("\n------------------------\n");
 
   float valor_temperatura; //Temperatura
   float valor_umidade; // Umidade
-  valor_umidade = dht.getHumidity();
-  valor_temperatura = dht.getTemperature();
-
-  delay(dht.getMinimumSamplingPeriod());
-
-  // float humidity = dht.getHumidity();
-  // float temperature = dht.getTemperature();
-
-  Serial.print(dht.getStatusString());
-  Serial.print("\t");
-  Serial.print(valor_umidade, 1);
-  Serial.print("\t\t");
-  Serial.print(valor_temperatura, 1);
-  Serial.print("\t\t");
-  Serial.print(dht.toFahrenheit(valor_temperatura), 1);
-  Serial.print("\t\t");
-  Serial.print(dht.computeHeatIndex(valor_temperatura, valor_umidade, false), 1);
-  Serial.print("\t\t");
-  Serial.println(dht.computeHeatIndex(dht.toFahrenheit(valor_temperatura), valor_umidade, true), 1);
-  // delay(2000);
+  valor_umidade = dht.readHumidity();
+  valor_temperatura = dht.readTemperature();
 
   umid_ok = (valor_umidade >= MIN_UMID);
   temp_ok = (valor_temperatura <= MAX_TEMP);
@@ -168,22 +135,22 @@ void loop()
   digitalWrite(PIN_TEMP_DIG_OUT, !umid_ok);
   digitalWrite(PIN_UMID_DIG_OUT, !temp_ok);
 
-  Serial.println("umi: ");
-  Serial.println(valor_umidade);
-  Serial.println("temp: ");
-  Serial.println(valor_temperatura);
-  Serial.print("umid_ok ? : ");
-  Serial.println(umid_ok);
-  Serial.print("temp_ok ? : ");
-  Serial.println(temp_ok);
+  // Serial.println("umi: ");
+  // Serial.println(valor_umidade);
+  // Serial.println("temp: ");
+  // Serial.println(valor_temperatura);
+  // Serial.print("umid_ok ? : ");
+  // Serial.println(umid_ok);
+  // Serial.print("temp_ok ? : ");
+  // Serial.println(temp_ok);
 
   /////////////////////////////////////////////////////////////
 
-  Serial.println("HELLO WORLD FROM WEMOS D1");
+  // Serial.println("HELLO WORLD FROM WEMOS D1");
  
   char rx_ch = Serial.read();
-  Serial.print("RX: ");
-  Serial.println(rx_ch);
+  // Serial.print("RX: ");
+  // Serial.println(rx_ch);
 
   //Analise das solicitacoes via web
   server.handleClient();
@@ -208,13 +175,13 @@ void loop()
         httpRequestData.concat(valor_umidade);
         httpRequestData.concat("\", \"unit\": \"%\"}]");
 
-        Serial.print("httpRequestData ");
-        Serial.println(httpRequestData);
+        // Serial.print("httpRequestData ");
+        // Serial.println(httpRequestData);
 
         https.addHeader("Content-Type", "application/json");
         // https.addHeader("data-raw", httpRequestData);
         https.addHeader("Authorization", "4bb77716-ed20-48e8-9824-f4fdf667cba4");  
-        Serial.print("[HTTPS] POST...\n");
+        // Serial.print("[HTTPS] POST...\n");
         // start connection and send HTTP header
 
         // Ignore SSL certificate validation
@@ -223,24 +190,24 @@ void loop()
 
         int httpCode = https.POST(httpRequestData);
         
-        Serial.print("httpCode");
-        Serial.println(httpCode);
+        // Serial.print("httpCode");
+        // Serial.println(httpCode);
       
       if (httpCode > 0) {
         // HTTP header has been send and Server response header has been handled
-        Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
+        // Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
         // file found at server
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
           String payload = https.getString();
-          Serial.println(payload);
+          // Serial.println(payload);
         }
       } else {
-        Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
+        // Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
       }
 
       https.end();
     } else {
-      Serial.printf("[HTTPS] Unable to connect\n");
+      // Serial.printf("[HTTPS] Unable to connect\n");
     }
  
 
@@ -248,9 +215,9 @@ void loop()
  
   } else {
  
-    Serial.println("Error in WiFi connection");
+    // Serial.println("Error in WiFi connection");
  
   }
 
-  // delay(1000);
+  delay(1000);
 }
