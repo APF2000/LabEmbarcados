@@ -157,33 +157,27 @@ void loop()
 
   if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
  
-    HTTPClient https;    //Declare object of class HTTPClient
-    // WiFiClient wifiClient;
+    HTTPClient https; 
 
     std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
 
-    // Ignore SSL certificate validation
     client->setInsecure();
 
-    // http.begin(wifiClient, "https://api.tago.io/data");
-    // // http.begin("http://192.168.1.88:8085/hello");      //Specify request destination
-    // http.addHeader("Content-Type", "text/plain");  //Specify content-type header
+    char *url = "https://api.tago.io/data";
 
-    // int httpCode = http.POST("{ \"variable\": \"temperatura\", \"unit\"    : \"F\", \"value\"   : 1234, \"time\"    : \"2015-11-03 13:44:33\",\"location\": {\"lat\": 42.2974279, \"lng\": -85.628292}}");   //Send the request
-    char *url = //"https://admin.tago.io/devices/654e746f204ae4001082529e";
-    "https://api.tago.io/data";
+    if (https.begin(*client, url)) {  
+        String httpRequestData = "";
+        httpRequestData.concat("[{ \"variable\": \"temperatura\", \"value\": \"");
+        httpRequestData.concat(valor_temperatura);
+        httpRequestData.concat("\", \"unit\": \"C\"}");
 
-    if (https.begin(*client, url)) {  // HTTPS
-        // Data to send with HTTP POST
-        // String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";     
-        String httpRequestData = //"[{\"variable\": \"temperatura\",\"value\": 123}]";  
-        "[{ \"variable\": \"temperatura\", \"value\": \"42.42\"}]";
-        // [ { "variable": "temperatura", "value": "22.2","unit": "C" } ]
-        // curl --location --request POST 'https://api.tago.io/data' --header 'Content-Type: application/json' --header 'Authorization: 4bb77716-ed20-48e8-9824-f4fdf667cba4' --data-raw '[ { "variable": "temperatura", "value": "21.2","unit": "C" } ]' 
+        httpRequestData.concat(", { \"variable\": \"umidade\", \"value\": \"");
+        httpRequestData.concat(valor_umidade);
+        httpRequestData.concat("\", \"unit\": \"%\"}]");
 
-    
-        // "{ \"variable\": \"temperatura\", \"unit\"    : \"F\", \"value\"   : 1234, \"time\"    : \"2015-11-03 13:44:33\",\"location\": {\"lat\": 42.2974279, \"lng\": -85.628292}}";
-    
+        Serial.print("httpRequestData ");
+        Serial.println(httpRequestData);
+
         https.addHeader("Content-Type", "application/json");
         // https.addHeader("data-raw", httpRequestData);
         https.addHeader("Authorization", "4bb77716-ed20-48e8-9824-f4fdf667cba4");  
@@ -199,8 +193,6 @@ void loop()
         Serial.print("httpCode");
         Serial.println(httpCode);
       
-      // Your
-
       if (httpCode > 0) {
         // HTTP header has been send and Server response header has been handled
         Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
@@ -227,5 +219,5 @@ void loop()
  
   }
 
-  delay(10000);
+  delay(1000);
 }
