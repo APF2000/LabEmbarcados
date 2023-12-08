@@ -1,4 +1,11 @@
-#include "DHT.h"
+#include "DHTesp.h" // Click here to get the library: http://librarymanager/All#DHTesp
+
+#ifdef ESP32
+#pragma message(THIS EXAMPLE IS FOR ESP8266 ONLY!)
+#error Select ESP8266 board.
+#endif
+
+DHTesp dht;
 
 // definição dos limites dos parâmetros
 #define MIN_UMID 60
@@ -9,7 +16,7 @@
 #define PIN_TEMP_DIG_OUT D6
 #define PIN_UMID_DIG_OUT D7
 
-DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
+// DHT dht(PIN_TEMP_UMID_ANAG_IN, DHT22);
 int umid_ok = 1;
 int temp_ok = 1;
 
@@ -73,9 +80,17 @@ void setup()
   pinMode(PIN_GAS_DIG_IN, INPUT);
 
   // sensor temperatura e umidade
-  dht.begin();
+  // dht.begin();
   pinMode(PIN_TEMP_DIG_OUT, OUTPUT);
   pinMode(PIN_UMID_DIG_OUT, OUTPUT);
+
+  String thisBoard= ARDUINO_BOARD;
+  Serial.println(thisBoard);
+
+  // Autodetect is not working reliable, don't use the following line
+  // dht.setup(17);
+  // use this instead: 
+  dht.setup(A0, DHTesp::DHT22); // Connect DHT sensor to GPIO 17
 
 /////////////////////////////////////////////////////////////////////////////
   // Conexao WiFi
@@ -126,8 +141,26 @@ void loop()
 
   float valor_temperatura; //Temperatura
   float valor_umidade; // Umidade
-  valor_umidade = dht.readHumidity();
-  valor_temperatura = dht.readTemperature();
+  valor_umidade = dht.getHumidity();
+  valor_temperatura = dht.getTemperature();
+
+  delay(dht.getMinimumSamplingPeriod());
+
+  // float humidity = dht.getHumidity();
+  // float temperature = dht.getTemperature();
+
+  Serial.print(dht.getStatusString());
+  Serial.print("\t");
+  Serial.print(valor_umidade, 1);
+  Serial.print("\t\t");
+  Serial.print(valor_temperatura, 1);
+  Serial.print("\t\t");
+  Serial.print(dht.toFahrenheit(valor_temperatura), 1);
+  Serial.print("\t\t");
+  Serial.print(dht.computeHeatIndex(valor_temperatura, valor_umidade, false), 1);
+  Serial.print("\t\t");
+  Serial.println(dht.computeHeatIndex(dht.toFahrenheit(valor_temperatura), valor_umidade, true), 1);
+  // delay(2000);
 
   umid_ok = (valor_umidade >= MIN_UMID);
   temp_ok = (valor_temperatura <= MAX_TEMP);
@@ -219,5 +252,5 @@ void loop()
  
   }
 
-  delay(1000);
+  // delay(1000);
 }
